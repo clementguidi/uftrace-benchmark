@@ -15,6 +15,10 @@ function benchmark_build_applications {
     true
 }
 
+function benchmark_install_applications {
+    true
+}
+
 function benchmark_run_test {
     true
 }
@@ -95,6 +99,9 @@ then
             ;;
         build)
             benchmark_build_applications
+            ;;
+        install)
+            benchmark_install_applications
             ;;
         test)
             benchmark_run_test
