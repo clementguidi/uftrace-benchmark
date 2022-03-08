@@ -47,13 +47,13 @@ int main(int argc, char **argv)
 		perf_disable_event(fd[i]);
 	}
 
-	latency = (end.tv_sec - start.tv_sec) * 10^9 + (end.tv_nsec - start.tv_sec);
+	latency = (end.tv_sec - start.tv_sec) * 1000000000 + (end.tv_nsec - start.tv_nsec);
 	latency /= NR_LOOP;
 
 	read(fd[0], &results, sizeof(results));
 
-	printf("count: %lld\tlatency: %lld ns\tcache misses: %lld\tbranch misses: %lld\tinstructions %lld\n",
-		results[0], latency, results[1]/NR_LOOP, results[2]/NR_LOOP, results[3]/NR_LOOP);
+	printf("LATENCY %lld\nCACHE_MISSES %lld\nBRANCH_MISSES %lld\nINSTRUCTIONS %lld\n",
+		latency, results[1]/NR_LOOP, results[2]/NR_LOOP, results[3]/NR_LOOP);
 
 	for (int i = 0; i < 3; i++) {
 		close(fd[i]);

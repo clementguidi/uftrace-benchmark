@@ -7,6 +7,14 @@ echo "# DORSAL's uftrace benchmark suite  #"
 echo "#               v0.1                #"
 echo "# # # # # # # # # # # # # # # # # # #"
 
+function create_results_directory {
+    mkdir "$RESULTS_DIR"
+}
+
+function compile_tests {
+    make -C perf
+}
+
 function benchmark_download_applications {
     true
 }
@@ -19,9 +27,34 @@ function benchmark_install_applications {
     true
 }
 
-function benchmark_run_test {
-    true
+function benchmark_test_instrumenting {
+    uftrace record --debug-domain dynamic:3 -P. ./applications/cpython/python -c "" 2>&1 \
+        | grep -e LATENCY \
+            -e "patched:" \
+            -e "failed:" \
+            -e "skipped:" \
+            -e "no match:"
 }
+
+function benchmark_test_tracing {
+    compile_tests
+
+    # -pg compiled
+    uftrace record perf/t-perf-loop-short-pg > "$RESULTS_DIR/tracing-pg.txt"
+    # fentry compiled
+    uftrace record perf/t-perf-loop-short-fentry > "$RESULTS_DIR/tracing-fentry.txt"
+    # dynamic patching
+    uftrace -P. record perf/t-perf-loop-short-dynamic > "$RESULTS_DIR/tracing-dynamic.txt"
+}
+
+function benchmark_display_results {
+    dir=$1
+
+    ./display_results.py "$dir"
+}
+
+TIMESTAMP=$(date +"%Y%m%d-%H%M%S")
+RESULTS_DIR="results-$TIMESTAMP"
 
 # options
 # --output/-O output dir
@@ -40,7 +73,7 @@ then
 fi
 
 OPTIONS=O:
-LONGOPTIONS=output:,log,success-rate,instrumentation-time,overhead,uftrace:,app-binary-size:,app-function-count:,app-language:
+LONGOPTIONS=results-dir:,output:,log,success-rate,instrumentation-time,overhead,uftrace:,app-binary-size:,app-function-count:,app-language:
 
 PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTIONS --name "$0" -- "$@")
 if [[ $? -ne 0 ]]
@@ -69,7 +102,7 @@ do
             SUCCESSRATEP=y
             shift
             ;;
-        --instrumentation-TIME)
+        --instrumentation-time)
             FULLTESTP=n
             INSTRUMENTATIONTIMEP=y
             shift
@@ -78,6 +111,10 @@ do
             FULLTESTP=n
             OVERHEADP=y
             shift
+            ;;
+        --results-dir)
+            RESULTS_DIR=$2
+            shift 2
             ;;
         --)
             shift
@@ -103,13 +140,23 @@ then
         install)
             benchmark_install_applications
             ;;
-        test)
-            benchmark_run_test
+        test-instrumenting)
+            create_results_directory
+            benchmark_test_instrumenting
+            ;;
+        test-tracing)
+            create_results_directory
+            benchmark_test_tracing
+            ;;
+        display-results)
+            benchmark_display_results "$RESULTS_DIR"
             ;;
         *)
             echo "command $1 undefined"
             exit 1
     esac
 else
-    benchmark_run_test
+    create_results_directory
+    benchmark_test_tracing
+    benchmark_display_results "$RESULTS_DIR"
 fi
