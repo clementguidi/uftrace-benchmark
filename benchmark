@@ -28,30 +28,30 @@ function benchmark_install_applications {
 }
 
 function benchmark_test_instrumenting {
-    uftrace record --debug-domain dynamic:4 -P. ./applications/sources/cpython/python -c "" 2>&1 \
+    uftrace record --debug-domain dynamic:4 -P !_Py. ./applications/sources/cpython/python -c "" 2>&1 \
         | grep -e "patching latency" \
-            -e "total:" \
-            -e "patched:" \
-            -e "failed:" \
-            -e "badsym:" \
-            -e "capstone:" \
-            -e "no detail:" \
-            -e "no detail 2:" \
-            -e "relative jump:" \
-            -e "relative call:" \
-            -e "pic:" \
-            -e "jump prologue:" \
-            -e "jump function:" \
-            -e "skipped:" \
-            -e "cold:" \
-            -e "min size:" \
-            -e "call size:" \
-            -e "no match:" \
+            -e "total: " \
+            -e "patched: " \
+            -e "failed: " \
+            -e "badsym: " \
+            -e "capstone: " \
+            -e "no detail: " \
+            -e "no detail 2: " \
+            -e "relative jump: " \
+            -e "relative call: " \
+            -e "pic: " \
+            -e "jump prologue: " \
+            -e "jump function: " \
+            -e "skipped: " \
+            -e "cold: " \
+            -e "min size: " \
+            -e "call size: " \
+            -e "no match: " \
         | sed -e 's/dynamic: //' \
             -e 's/^ *//' \
             -e 's/: */: /' \
             -e 's/( */(/' \
-        > "$RESULTS_DIR/instrumenting.txt"
+        > "$RESULTS_DIR/instrumentation.txt"
 }
 
 function benchmark_test_tracing {

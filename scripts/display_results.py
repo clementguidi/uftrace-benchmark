@@ -7,7 +7,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 if len(sys.argv) != 2:
-    exit
+    sys.exit(f"Usage: {sys.argv[0]} RESULTS_DIR")
 
 sns.set()
 
