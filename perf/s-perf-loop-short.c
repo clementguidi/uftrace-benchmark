@@ -5,18 +5,18 @@
 
 #define NR_WARMUP 10
 #define NR_LOOP 100000
+#define NR_PERF_EVENTS 3
 
 void a();
 
 int main(int argc, char **argv)
 {
-	struct perf_event_attr pe[3];
-	long long results[3+1];
-	int fd[3];
+	struct perf_event_attr pe[NR_PERF_EVENTS];
+	long long results[NR_PERF_EVENTS+1];
+	int fd[NR_PERF_EVENTS];
 	struct timespec start, end;
 	long long latency;
-
-	fd[0] = -1;
+	int nr_perf_events = NR_PERF_EVENTS;
 
 	int metrics[] = {
 		PERF_COUNT_HW_CACHE_MISSES,
@@ -24,7 +24,8 @@ int main(int argc, char **argv)
 		PERF_COUNT_HW_INSTRUCTIONS,
 	};
 
-	for (int i = 0; i < 3; i++) {
+	fd[0] = -1;
+	for (int i = 0; i < nr_perf_events; i++) {
 		fd[i] = perf_define_event(metrics[i], fd[0]);
 		perf_reset_event(fd[i]);
 	}
@@ -33,7 +34,7 @@ int main(int argc, char **argv)
 		a();
 	}
 
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < nr_perf_events; i++) {
 		perf_enable_event(fd[i]);
 	}
 	clock_gettime(CLOCK_MONOTONIC, &start);
@@ -43,7 +44,7 @@ int main(int argc, char **argv)
 	}
 
 	clock_gettime(CLOCK_MONOTONIC, &end);
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < nr_perf_events; i++) {
 		perf_disable_event(fd[i]);
 	}
 

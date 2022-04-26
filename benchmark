@@ -2,13 +2,19 @@
 
 set -euo pipefail
 
+BENCHMARK_TIMESTAMP=$(date +"%Y%m%d-%H%M%S")
+BENCHMARK_RESULT_DIR="results-$BENCHMARK_TIMESTAMP"
+BENCHMARK_APP_DIR=applications
+
+source "$BENCHMARK_APP_DIR/download.sh"
+
 echo "# # # # # # # # # # # # # # # # # # #"
 echo "# DORSAL's uftrace benchmark suite  #"
 echo "#               v0.1                #"
 echo "# # # # # # # # # # # # # # # # # # #"
 
 function create_results_directory {
-    mkdir "$RESULTS_DIR"
+    mkdir "$BENCHMARK_RESULT_DIR"
 }
 
 function compile_tests {
@@ -16,7 +22,7 @@ function compile_tests {
 }
 
 function benchmark_download_applications {
-    true
+    app_download_all
 }
 
 function benchmark_build_applications {
@@ -51,18 +57,18 @@ function benchmark_test_instrumenting {
             -e 's/^ *//' \
             -e 's/: */: /' \
             -e 's/( */(/' \
-        > "$RESULTS_DIR/instrumentation.txt"
+        > "$BENCHMARK_RESULT_DIR/instrumentation.txt"
 }
 
 function benchmark_test_tracing {
     compile_tests
 
     # -pg compiled
-    uftrace record perf/t-perf-loop-short-pg > "$RESULTS_DIR/tracing-pg.txt"
+    uftrace record perf/t-perf-loop-short-pg > "$BENCHMARK_RESULT_DIR/tracing-pg.txt"
     # fentry compiled
-    uftrace record perf/t-perf-loop-short-fentry > "$RESULTS_DIR/tracing-fentry.txt"
+    uftrace record perf/t-perf-loop-short-fentry > "$BENCHMARK_RESULT_DIR/tracing-fentry.txt"
     # dynamic patching
-    uftrace -P. record perf/t-perf-loop-short-dynamic > "$RESULTS_DIR/tracing-dynamic.txt"
+    uftrace -P. record perf/t-perf-loop-short-dynamic > "$BENCHMARK_RESULT_DIR/tracing-dynamic.txt"
 }
 
 function benchmark_display_results {
@@ -71,8 +77,6 @@ function benchmark_display_results {
     ./display_results.py "$dir"
 }
 
-TIMESTAMP=$(date +"%Y%m%d-%H%M%S")
-RESULTS_DIR="results-$TIMESTAMP"
 
 # options
 # --output/-O output dir
@@ -131,7 +135,7 @@ do
             shift
             ;;
         --results-dir)
-            RESULTS_DIR=$2
+            BENCHMARK_RESULT_DIR=$2
             shift 2
             ;;
         --)
@@ -167,7 +171,7 @@ then
             benchmark_test_tracing
             ;;
         display-results)
-            benchmark_display_results "$RESULTS_DIR"
+            benchmark_display_results "$BENCHMARK_RESULT_DIR"
             ;;
         *)
             echo "command $1 undefined"
@@ -176,5 +180,5 @@ then
 else
     create_results_directory
     benchmark_test_tracing
-    benchmark_display_results "$RESULTS_DIR"
+    benchmark_display_results "$BENCHMARK_RESULT_DIR"
 fi
