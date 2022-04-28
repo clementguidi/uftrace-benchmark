@@ -1,0 +1,13 @@
+[
+    {
+        "build_dir": "debug",
+        "config_prog": "../configure",
+        "config_args": [
+            "--with-pydebug",
+            "-C"
+        ],
+        "build_prog": "make",
+        "build_args": "-j",
+        "executables": ["python"]
+    }
+]

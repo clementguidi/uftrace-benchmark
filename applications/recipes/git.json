@@ -1,0 +1,15 @@
+[
+    {
+        "conf_dir": ".",
+        "build_dir": ".",
+        "preconf_prog": "autoreconf",
+        "config_prog": "./configure",
+        "config_args": [
+            "--prefix=/usr/local",
+            "-C"
+        ],
+        "build_prog": "make",
+        "build_args": "-j",
+        "executables": ["git"]
+    }
+]
