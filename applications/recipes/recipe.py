@@ -70,8 +70,6 @@ class BaseRecipe:
             if os.path.exists(self.path):
                 return
         print(f"UNPACK {self.archive_path} -> {self.path}")
-        if not os.path.exists(self.path):
-            print(f"ERROR {self.archive_path} -/> {self.path}")
         extract_archive(self.archive_path)
 
     def patch(self):

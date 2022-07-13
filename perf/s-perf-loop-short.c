@@ -63,5 +63,6 @@ int main(int argc, char **argv)
 
 void a()
 {
+	int i = 0;
 	return;
 }

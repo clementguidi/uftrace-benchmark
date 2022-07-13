@@ -1,8 +1,8 @@
 TARGETS = t-perf-loop-short-pg t-perf-loop-short-fentry t-perf-loop-short-dynamic
 
 COMMON_CFLAGS := $(CFLAGS) -g
-pg_CFLAGS = -pg
-fentry_CFLAGS = -finstrument-functions
+pg_CFLAGS     := -pg
+fentry_CFLAGS := -finstrument-functions
 
 all: $(TARGETS)
 
